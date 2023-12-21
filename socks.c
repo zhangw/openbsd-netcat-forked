@@ -29,6 +29,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <string.h>
 
 #include <err.h>
 #include <errno.h>
@@ -350,7 +351,7 @@ socks_connect(const char *host, const char *port,
 			    proxypass, sizeof proxypass);
 			r = snprintf(buf, sizeof(buf), "%s:%s",
 			    proxyuser, proxypass);
-			explicit_bzero(proxypass, sizeof proxypass);
+            memset(proxypass, 0, sizeof proxypass);
 			if (r == -1 || (size_t)r >= sizeof(buf) ||
 			    b64_ntop(buf, strlen(buf), resp,
 			    sizeof(resp)) == -1)
@@ -362,8 +363,8 @@ socks_connect(const char *host, const char *port,
 			r = strlen(buf);
 			if ((cnt = atomicio(vwrite, proxyfd, buf, r)) != r)
 				err(1, "write failed (%zu/%d)", cnt, r);
-			explicit_bzero(proxypass, sizeof proxypass);
-			explicit_bzero(buf, sizeof buf);
+            memset(proxypass, 0, sizeof proxypass);
+            memset(buf, 0, sizeof buf);
 		}
 
 		/* Terminate headers */
